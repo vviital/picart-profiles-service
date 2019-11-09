@@ -1,0 +1,25 @@
+version: '3'
+services:
+  profiles:
+    container_name: profiles
+    build: .
+    environment:
+      - MONGODB_URL=mongodb://mongo:27017/profiles
+      - PORT=3000
+      - TOKEN_SECRET=secret
+      - ADMIN_PASSWORD=test
+      - SENDER_EMAIL
+      - SENDER_EMAIL_PASSWORD
+    depends_on:
+      - mongo
+    ports:
+      - 3000:3000
+  mongo:
+    image: 'mongo'
+    volumes:
+      - mongo:/data/db
+    ports:
+      - 27017:27017
+
+volumes:
+  mongo: {}

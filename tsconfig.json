@@ -5,15 +5,21 @@
     "**/*.spec.ts"
   ],
   "compilerOptions": {
+    "outDir": "dest",
     "allowJs": false,
     "allowSyntheticDefaultImports": true,
-    "downlevelIteration": true,
+    "declaration": true,
+    "declarationMap": true,
     "experimentalDecorators": true,
     "module": "CommonJS",
     "noImplicitAny": true,
-    "outDir": "dest",
-    "rootDir": "src",
+    "sourceMap": true,
     "strictNullChecks": true,
-    "target": "ESNext"
-  }
+    "downlevelIteration": true,
+    "target": "ESNext",
+    "typeRoots": [
+      "./typings",
+      "./node_modules/@types"
+    ]
+  },
 }

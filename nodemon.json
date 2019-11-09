@@ -5,7 +5,8 @@
     "node_modules"
   ],
   "watch": [
-    "src"
+    "src",
+    "typings"
   ],
   "exec": "yarn start:dev",
   "ext": "ts"
