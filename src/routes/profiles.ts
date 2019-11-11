@@ -4,12 +4,15 @@ import * as koaBody from 'koa-body';
 
 const randomatic = require('randomatic');
 
-import { sendResponse } from '../senders';
+import { sendResponse, sendError } from '../senders';
 import { auth } from '../middlewares';
 import config from '../config';
-import Profile from '../datasource/profiles.mongo';
+import Profile, { userEditableFields, adminEditableFields } from '../datasource/profiles.mongo';
 import Email from '../datasource/email';
 import * as utils from '../utils';
+import { isAdmin } from '../middlewares/roles';
+
+const defaultProjection = { password: 0, _id: 0 };
 
 const router = new Router({
   prefix: '/profiles',
@@ -58,25 +61,104 @@ router.post('/', auth, async (ctx: Context) => {
 router.get('/:id', auth, async (ctx: Context) => {
   const id = ctx.params.id;
 
-  sendResponse(ctx, 200, { todo: 'implement', id });
+  const profile = await Profile.findOne({ id }, defaultProjection);
+
+  if (!profile) {
+    return sendError(ctx, 404, { message: 'Profile not found' });
+  }
+
+  sendResponse(ctx, 200, profile);
 });
+
+type params = {
+  [key: string]: any
+}
+
+const extractEditableFields = (ctx: Context): params => {
+  let fields = userEditableFields;
+
+  if (isAdmin(ctx.user)) {
+    fields = adminEditableFields
+  }
+
+  return Object.keys(ctx.request.body || {}).reduce((acc: params, key: string): params => {
+    if (fields.includes(key)) {
+      acc[key] = ctx.request.body[key];
+    }
+    return acc;
+  }, {});
+};
 
 router.patch('/:id', auth, async (ctx: Context) => {
   const id = ctx.params.id;
 
-  sendResponse(ctx, 200, { todo: 'implement', id });
+  const fields = extractEditableFields(ctx);
+
+  await Profile.updateOne({ id }, { $set: fields });
+
+  const profile = await Profile.findOne({ id }, defaultProjection);
+
+  sendResponse(ctx, 200, profile || {});
 });
+
+type emailUpdate = {
+  email: string
+  confirmationPassword: string
+}
+
+type passwordUpdate = {
+  password: string
+  confirmationPassword: string
+}
+
+const extractEmailParams = (ctx: Context): emailUpdate => ({
+  email: ctx.request.body.email || '',
+  confirmationPassword: ctx.request.body.confirmationPassword || '',
+})
 
 router.put('/:id/email', auth, async (ctx: Context) => {
   const id = ctx.params.id;
+  const params = extractEmailParams(ctx);
 
-  sendResponse(ctx, 200, { todo: 'implement', id });
+  let profile = await Profile.findOne({ id });
+
+  if (!profile) {
+    return sendError(ctx, 404, { message: 'Profile not found' });
+  }
+
+  if (!utils.auth.verifyHashedPassword(params.confirmationPassword, profile.password)) {
+    return sendError(ctx, 403, { message: 'Forbidden' });
+  }
+
+  await profile.update({ $set: { email: params.email }});
+
+  sendResponse(ctx, 200, { email: params.email });
 });
+
+const extractPasswordParams = (ctx: Context): passwordUpdate => ({
+  password: ctx.request.body.password || '',
+  confirmationPassword: ctx.request.body.confirmationPassword || '',
+})
 
 router.put('/:id/password', auth, async (ctx: Context) => {
   const id = ctx.params.id;
+  const params = extractPasswordParams(ctx);
 
-  sendResponse(ctx, 200, { todo: 'implement', id });
+  let profile = await Profile.findOne({ id });
+
+  if (!profile) {
+    return sendError(ctx, 404, { message: 'Profile not found' });
+  }
+
+  if (!utils.auth.verifyHashedPassword(params.confirmationPassword, profile.password)) {
+    return sendError(ctx, 403, { message: 'Forbidden' });
+  }
+
+  const password = utils.auth.generateHashedPassword(params.password);
+
+  await profile.update({ $set: { password }});
+
+  sendResponse(ctx, 204);
 });
 
 export default router;

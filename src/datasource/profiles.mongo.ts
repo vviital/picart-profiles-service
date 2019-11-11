@@ -45,6 +45,10 @@ const profileDefinition = new mongoose.Schema({
     type: [String],
     default: config.availableRoles.user,
   },
+  photos: {
+    type: [String],
+    default: [],
+  },
   createdAt: {
     type: Date,
     default: Date.now(),
@@ -66,11 +70,24 @@ export interface IProfile extends mongoose.Document {
     value: string,
     salt: string,
   }
+  photos: string[]
   roles: string[]
   surname: string
   updatedAt: Date,
 }
 
 const Profiles = mongoose.model<IProfile>('profiles', profileDefinition);
+
+export const userEditableFields = [
+  'login',
+  'name',
+  'photos',
+  'surname',
+];
+
+export const adminEditableFields = [
+  ...userEditableFields,
+  'roles',
+];
 
 export default Profiles;
