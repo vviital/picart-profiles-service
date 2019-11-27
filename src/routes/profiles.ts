@@ -30,11 +30,14 @@ router.get('/', auth, async (ctx: Context) => {
 });
 
 const extractProfileParams = (ctx: Context) => ({
+  about: ctx.request.body.about,
   email: ctx.request.body.email,
   login: ctx.request.body.login,
   name: ctx.request.body.name,
+  organization: ctx.request.body.organization,
   roles: ctx.request.body.roles || config.availableRoles.user,
   surname: ctx.request.body.surname,
+  title: ctx.request.body.title,
 });
 
 const generatePassword = (): string => {

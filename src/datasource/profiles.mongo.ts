@@ -57,33 +57,48 @@ const profileDefinition = new mongoose.Schema({
     type: Date,
     default: Date.now(),
   },
+  about: {
+    type: String,
+  },
+  organization: {
+    type: String,
+  },
+  title: {
+    type: String,
+  },
 });
 
 profileDefinition.virtual('type').get(() => 'profile');
 profileDefinition.index({ email: 1, login: 1 }, { unique: true });
 
 export interface IProfile extends mongoose.Document {
+  about: string,
   createdAt: Date,
   email: string
   login: string
   name: string
+  organization: string,
+  photos: string[]
   password: {
     value: string,
     salt: string,
   }
-  photos: string[]
   roles: string[]
   surname: string
+  title: string,
   updatedAt: Date,
 }
 
 const Profiles = mongoose.model<IProfile>('profiles', profileDefinition);
 
 export const userEditableFields = [
+  'about',
   'login',
   'name',
+  'organization',
   'photos',
   'surname',
+  'title',
 ];
 
 export const adminEditableFields = [
