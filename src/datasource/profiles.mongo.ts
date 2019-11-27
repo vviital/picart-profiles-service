@@ -59,6 +59,7 @@ const profileDefinition = new mongoose.Schema({
   },
 });
 
+profileDefinition.virtual('type').get(() => 'profile');
 profileDefinition.index({ email: 1, login: 1 }, { unique: true });
 
 export interface IProfile extends mongoose.Document {

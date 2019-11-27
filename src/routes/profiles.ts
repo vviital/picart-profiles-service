@@ -19,7 +19,14 @@ const router = new Router({
 });
 
 router.get('/', auth, async (ctx: Context) => {
-  sendResponse(ctx, 200, { todo: 'implement' })
+  const profiles = await Profile.find({}, defaultProjection);
+  sendResponse(ctx, 200, {
+    items: profiles.map(x => x.toJSON({ virtuals: true })),
+    limit: 100,
+    offset: 0,
+    totalCount: profiles.length,
+    type: 'collection',
+  });
 });
 
 const extractProfileParams = (ctx: Context) => ({
@@ -55,7 +62,7 @@ router.post('/', auth, async (ctx: Context) => {
     },
   });
 
-  sendResponse(ctx, 201, result);
+  sendResponse(ctx, 201, result.toJSON({ virtuals: true }));
 });
 
 router.get('/:id', auth, async (ctx: Context) => {
@@ -67,7 +74,7 @@ router.get('/:id', auth, async (ctx: Context) => {
     return sendError(ctx, 404, { message: 'Profile not found' });
   }
 
-  sendResponse(ctx, 200, profile);
+  sendResponse(ctx, 200, profile.toJSON({ virtuals: true }));
 });
 
 type params = {
@@ -98,7 +105,11 @@ router.patch('/:id', auth, async (ctx: Context) => {
 
   const profile = await Profile.findOne({ id }, defaultProjection);
 
-  sendResponse(ctx, 200, profile || {});
+  if (profile) {
+    sendResponse(ctx, 200, profile.toJSON({ virtuals: true }));
+  }
+
+  sendResponse(ctx, 200, {});
 });
 
 type emailUpdate = {
