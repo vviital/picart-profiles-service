@@ -5,7 +5,7 @@ import * as logger from 'koa-logger';
 import * as cors from '@koa/cors';
 
 import config from './config';
-import { profiles, tokens } from './routes';
+import { profiles, tokens, service } from './routes';
 import init from './init';
 
 const createApp = async () => {
@@ -14,7 +14,8 @@ const createApp = async () => {
   app.use(logger());
 
   app.use(profiles.routes());
-  app.use(tokens.routes())
+  app.use(tokens.routes());
+  app.use(service.routes());
 
   await mongoose.connect(config.mongoURL, { useNewUrlParser: true });
   await init();
