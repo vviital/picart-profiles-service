@@ -13,7 +13,7 @@
     "shortid": "^2.2.15"
   },
   "scripts": {
-    "build": "rm -rf dest && tsc --build",
+    "build": "rm -rf dest && tsc --build && cp -r ./src/templates ./dest/templates",
     "start": "node dest/index.js",
     "start:dev": "node --inspect=5858 -r ts-node/register ./src/index.ts",
     "start:watch": "nodemon",
