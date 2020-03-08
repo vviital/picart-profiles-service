@@ -1,6 +1,7 @@
 import { Context } from 'koa';
 import * as Router from 'koa-router';
 import * as koaBody from 'koa-body';
+import {toString} from 'lodash';
 
 const randomatic = require('randomatic');
 
@@ -19,11 +20,25 @@ const router = new Router({
 });
 
 router.get('/', auth, async (ctx: Context) => {
-  const profiles = await Profile.find({}, defaultProjection);
+  const fieldsToSearch = ['email', 'login', 'name', 'surname'];
+  const options = {
+    query: toString(ctx.query['query']),
+    limit: +ctx.query['limit'] || 100,
+    offset: +ctx.query['offset'] || 0
+  };
+
+  const regex = new RegExp(options.query.split('').map((s) => `.*${s}`).join(''), 'gmi');
+
+  const profiles = await Profile
+    .find({
+      $or: fieldsToSearch.map((field) => ({[field]: {$regex: regex}}))
+    }, defaultProjection)
+    .skip(options.offset)
+    .limit(options.limit);
   sendResponse(ctx, 200, {
     items: profiles.map(x => x.toJSON({ virtuals: true })),
-    limit: 100,
-    offset: 0,
+    limit: options.limit,
+    offset: options.offset,
     totalCount: profiles.length,
     type: 'collection',
   });
