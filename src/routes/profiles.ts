@@ -124,7 +124,7 @@ router.patch('/:id', auth, async (ctx: Context) => {
   const profile = await Profile.findOne({ id }, defaultProjection);
 
   if (profile) {
-    sendResponse(ctx, 200, profile.toJSON({ virtuals: true }));
+    return sendResponse(ctx, 200, profile.toJSON({ virtuals: true }));
   }
 
   sendResponse(ctx, 200, {});
