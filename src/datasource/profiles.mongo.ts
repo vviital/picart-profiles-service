@@ -18,11 +18,6 @@ const profileDefinition = new mongoose.Schema({
     unique: true,
     required: true,
   },
-  login: {
-    type: String,
-    unique: true,
-    required: true,
-  },
   password: {
     value: {
       type: String,
@@ -45,9 +40,9 @@ const profileDefinition = new mongoose.Schema({
     type: [String],
     default: config.availableRoles.user,
   },
-  photos: {
-    type: [String],
-    default: [],
+  photo: {
+    type: String,
+    default: '',
   },
   createdAt: {
     type: Date,
@@ -69,16 +64,15 @@ const profileDefinition = new mongoose.Schema({
 });
 
 profileDefinition.virtual('type').get(() => 'profile');
-profileDefinition.index({ email: 1, login: 1 }, { unique: true });
+profileDefinition.index({ email: 1 }, { unique: true });
 
 export interface IProfile extends mongoose.Document {
   about: string,
   createdAt: Date,
   email: string
-  login: string
   name: string
   organization: string,
-  photos: string[]
+  photo: string
   password: {
     value: string,
     salt: string,
@@ -93,10 +87,9 @@ const Profiles = mongoose.model<IProfile>('profiles', profileDefinition);
 
 export const userEditableFields = [
   'about',
-  'login',
   'name',
   'organization',
-  'photos',
+  'photo',
   'surname',
   'title',
 ];

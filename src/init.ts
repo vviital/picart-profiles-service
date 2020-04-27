@@ -4,7 +4,6 @@ import Profile from './datasource/profiles.mongo';
 
 type templateSuperAdmin = {
   email: string
-  login: string
   name: string
   surname: string
   roles: string

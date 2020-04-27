@@ -28,11 +28,7 @@ router.post('/', koaBody({ json: true }), async (ctx: Context) => {
   const params = extractTokenParameters(ctx);
 
   const profile = await Profiles.findOne({
-    $or: [{
-      login: params.value,
-    }, {
-      email: params.value,
-    }],
+    email: params.value,
   });
 
   if (!profile) {
@@ -46,7 +42,6 @@ router.post('/', koaBody({ json: true }), async (ctx: Context) => {
   const claims: UserClaims = ({
     id: profile.id,
     email: profile.email,
-    login: profile.login,
     roles: profile.roles,
   });
 

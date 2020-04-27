@@ -20,7 +20,7 @@ const router = new Router({
 });
 
 router.get('/', auth, async (ctx: Context) => {
-  const fieldsToSearch = ['email', 'login', 'name', 'surname'];
+  const fieldsToSearch = ['email', 'name', 'surname'];
   const options = {
     query: toString(ctx.query['query']),
     limit: +ctx.query['limit'] || 100,
@@ -47,7 +47,6 @@ router.get('/', auth, async (ctx: Context) => {
 const extractProfileParams = (ctx: Context) => ({
   about: ctx.request.body.about,
   email: ctx.request.body.email,
-  login: ctx.request.body.login,
   name: ctx.request.body.name,
   organization: ctx.request.body.organization,
   roles: ctx.request.body.roles || config.availableRoles.user,

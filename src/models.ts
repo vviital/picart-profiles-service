@@ -1,7 +1,6 @@
 export type UserClaims = {
   id: string,
   email: string,
-  login: string,
   roles: string[],
 }
 
