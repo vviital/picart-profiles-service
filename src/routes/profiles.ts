@@ -1,7 +1,7 @@
 import { Context } from 'koa';
 import * as Router from 'koa-router';
 import * as koaBody from 'koa-body';
-import {toString} from 'lodash';
+import {get, includes, toString} from 'lodash';
 
 const randomatic = require('randomatic');
 
@@ -185,6 +185,23 @@ router.put('/:id/password', auth, async (ctx: Context) => {
   const password = utils.auth.generateHashedPassword(params.password);
 
   await profile.update({ $set: { password }});
+
+  sendResponse(ctx, 204);
+});
+
+router.delete('/:id', auth, async (ctx: Context) => {
+  const roles: [string] = get(ctx, 'user.roles', []);
+  if (!includes(roles, 'admin')) {
+    return sendError(ctx, 403, { message: 'Forbidden' });
+  }
+
+  const id = ctx.params.id;
+  const profile = await Profile.findOne({ id });
+
+  if (!profile) {
+    return sendError(ctx, 404, { message: 'Profile not found' });
+  }
+  await profile.remove();
 
   sendResponse(ctx, 204);
 });
